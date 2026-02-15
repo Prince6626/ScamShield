@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scamshield-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/scamshield
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - mongo
+      - ai-service
+    networks:
+      - scamshield-network
+
+  ai-service:
+    build: 
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: scamshield-ai-service
+    ports:
+      - "8000:8000"
+    networks:
+      - scamshield-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: scamshield-frontend
+    ports:
+      - "3000:5173"
+    depends_on:
+      - backend
+    networks:
+      - scamshield-network
+
+  mongo:
+    image: mongo:latest
+    container_name: scamshield-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - scamshield-network
+
+networks:
+  scamshield-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

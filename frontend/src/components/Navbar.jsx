@@ -24,10 +24,10 @@ export default function Navbar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
+
             return (
-              <Link 
-                key={item.path} 
+              <Link
+                key={item.path}
                 to={item.path}
                 className={cn(
                   "flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600",
@@ -42,8 +42,8 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm">Log In</Button>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Get Protected</Button>
+          <Button variant="outline" size="sm">Log In</Button>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Get Protected</Button>
         </div>
       </div>
     </nav>

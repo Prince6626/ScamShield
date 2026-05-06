@@ -142,7 +142,74 @@ Important:
     }
 }
 
+/**
+ * Generate verification assessment using Gemini (second-layer validation)
+ * Asks Gemini to validate company credibility, email authenticity,
+ * salary realism, and contact methods.
+ * 
+ * @param {string} jobText - The job posting text
+ * @returns {Promise<object>} - { verification_score: number (0-100), issues: string[] }
+ */
+async function generateVerification(jobText) {
+    try {
+        const ai = getGenAI();
+        if (!ai) {
+            console.warn('Gemini API key not configured for verification');
+            return { verification_score: 0, issues: ["Gemini API key not configured"] };
+        }
+
+        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const prompt = `You are an expert fraud analyst. Check if this job post is realistic and consistent.
+
+Job Text:
+"""
+${jobText}
+"""
+
+Verify the following:
+- Company credibility (does the company name sound real, is it a known entity?)
+- Email authenticity (does the email domain match the company? is it a free email provider?)
+- Salary realism (is the offered salary/compensation realistic for the role described?)
+- Contact method (are they using professional channels or informal ones like WhatsApp/Telegram?)
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
+
+{
+  "verification_score": <number from 0 to 100, where 0 means fully legitimate and 100 means highly suspicious>,
+  "issues": ["List each specific issue found, be concise, max 5 issues"]
+}
+
+Rules:
+- Score 0-20: Looks legitimate
+- Score 21-50: Some concerns
+- Score 51-100: Highly suspicious
+- If no issues found, return empty issues array and low score
+- Return ONLY the JSON object, nothing else`;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response.text();
+
+        const parsed = extractJSON(response);
+
+        if (!parsed || typeof parsed.verification_score !== 'number') {
+            throw new Error('Invalid verification response from Gemini');
+        }
+
+        return {
+            verification_score: Math.min(Math.max(Math.round(parsed.verification_score), 0), 100),
+            issues: Array.isArray(parsed.issues) ? parsed.issues : []
+        };
+
+    } catch (error) {
+        console.error('Gemini Verification Error:', error.message);
+        // Return neutral score on failure so it doesn't skew results
+        return { verification_score: 0, issues: ["Gemini verification unavailable"] };
+    }
+}
+
 module.exports = {
     generateExplanation,
+    generateVerification,
     extractJSON
 };

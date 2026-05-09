@@ -240,10 +240,11 @@ export default function Home() {
 
         {/* ── Stats Row ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard value="12,480+"  label="Scams Detected"      icon={ShieldAlert}  color="bg-red-500/10 border-red-500/20 text-red-400"     delay={0.1} />
-          <StatCard value="98.4%"    label="Detection Accuracy"  icon={TrendingUp}   color="bg-emerald-500/10 border-emerald-500/20 text-emerald-400" delay={0.15} />
+          
           <StatCard value="< 10s"    label="Avg. Analysis Time"  icon={Zap}          color="bg-cyan-500/10 border-cyan-500/20 text-cyan-400"    delay={0.2} />
-          <StatCard value="5 Layers" label="Detection Methods"   icon={Cpu}          color="bg-violet-500/10 border-violet-500/20 text-violet-400" delay={0.25} />
+          <StatCard value="6 Layers"   label="Active Defense Pipeline" icon={ShieldCheck}  color="bg-emerald-500/10 border-emerald-500/20 text-emerald-400" delay={0.15} />
+          <StatCard value="Real-time"  label="Domain Verification"   icon={Globe}        color="bg-cyan-500/10 border-cyan-500/20 text-cyan-400"    delay={0.2} />
+          <StatCard value="EasyOCR"    label="Vision Text Extraction"  icon={ScanLine}     color="bg-violet-500/10 border-violet-500/20 text-violet-400" delay={0.25} />
         </div>
 
         {/* ── Action Cards + Pipeline ────────────────────────────────── */}

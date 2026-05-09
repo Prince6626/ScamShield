@@ -7,4 +7,6 @@ pillow
 python-multipart
 joblib
 numpy
-google-generativeai
+requests
+google-genai
+python-dotenv

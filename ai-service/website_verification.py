@@ -5,11 +5,13 @@ import json
 import os
 
 try:
-    import google.generativeai as genai
+    from google import genai as _genai_module
     GEMINI_AVAILABLE = True
-    genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
-except ImportError:
+    _api_key = os.environ.get("GEMINI_API_KEY", "")
+    _gemini_client = _genai_module.Client(api_key=_api_key) if _api_key else None
+except (ImportError, Exception):
     GEMINI_AVAILABLE = False
+    _gemini_client = None
 
 def extract_company(text):
     # Regex fallback for extracting company
@@ -32,11 +34,13 @@ def extract_company(text):
             return match.group(1).strip()
             
     # Try Gemini extraction if regex fails
-    if GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY"):
+    if GEMINI_AVAILABLE and _gemini_client and os.environ.get("GEMINI_API_KEY"):
         prompt = "Extract the company name from this job post. Return only the company name, or 'None' if no company is detected.\n\nText:\n" + text[:1500]
         try:
-            model = genai.GenerativeModel('gemini-2.5-flash')
-            response = model.generate_content(prompt)
+            response = _gemini_client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
             company_name = response.text.strip()
             if company_name and company_name.lower() != 'none':
                 return company_name
@@ -110,7 +114,7 @@ def company_domain_match(company, url):
     return {"score": 0, "flags": []}
 
 def gemini_verification(text):
-    if not GEMINI_AVAILABLE or not os.environ.get("GEMINI_API_KEY"):
+    if not GEMINI_AVAILABLE or not _gemini_client or not os.environ.get("GEMINI_API_KEY"):
         return {"verification_score": 0, "issues": []}
         
     prompt = """Analyze this job post and verify the company authenticity.
@@ -130,8 +134,10 @@ Job post:
 """ + text[:2000]
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
+        response = _gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         text_resp = response.text
         
         # Robust JSON extraction

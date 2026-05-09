@@ -1,10 +1,15 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load .env before any module that reads env vars
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from pydantic import BaseModel
 import easyocr
 import joblib
 import os
 import re
+# pyrefly: ignore [missing-import]
 import numpy as np
+# pyrefly: ignore [missing-import]
 from PIL import Image
 import io
 from verification_engine import compute_verification
